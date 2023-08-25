@@ -2,19 +2,30 @@ package render
 
 import (
 	"bytes"
+	"exercise1/pkg/config"
+	"exercise1/pkg/models"
 	"log"
 	"net/http"
 	"path/filepath"
 	"text/template"
 )
 
-func RenderTemplate(w http.ResponseWriter, tmpl string) {
+var templateConfig *config.AppConfig
+func NewTemplate(a *config.AppConfig) {
+	templateConfig = a
+}
+
+func RenderTemplate(w http.ResponseWriter, tmpl string, td *models.TemplateData) {
 
 	// populate the template and cache them
-	templates,err:=createCacheTEmplate()
-	if err != nil {
-		log.Fatal(err)
-	}
+	//templates,err:=CreateCacheTEmplate()
+	var err error
+	templates := templateConfig.TemplateCache
+
+
+	// if err != nil {
+	// 	log.Fatal(err)
+	// }
 	
 	// get the cache template
 	currentTemplate,ok := templates[tmpl]
@@ -25,7 +36,7 @@ func RenderTemplate(w http.ResponseWriter, tmpl string) {
 	// render the template
 
 	buf:=new(bytes.Buffer)
-	err=currentTemplate.Execute(buf,nil)
+	err=currentTemplate.Execute(buf,td)
 
 	if err != nil { 
 		log.Fatal(err)
@@ -37,7 +48,7 @@ func RenderTemplate(w http.ResponseWriter, tmpl string) {
 	}
 }
 
-func createCacheTEmplate()(map[string]*template.Template,error) {
+func CreateCacheTEmplate()(map[string]*template.Template,error) {
 	var ts *template.Template
 	var myTemplateCache = map[string]*template.Template{}
 
